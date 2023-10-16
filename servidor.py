@@ -14,17 +14,70 @@ servidorWeb = Flask(__name__)
 # Enable CORS for all routes
 CORS(servidorWeb, resources={r"/*": {"origins": "*"}})
 
+productMatrixCatalog = {
+    1: "Takis Fuego 80g.",
+    2: "Takis Original 80g.",
+    3: "Runners 80g.",
+    4: "Chips Jalapeño 60g.",
+    5: "Chips Fuego 60g.",
+    6: "Tostitos 57g.",
+    7: "Cheetos Torciditos 44g.",
+    8: "Fritos Limón y Sal 38g.",
+    9: "Churrumais",
+    10: "Rancheritos 40g.",
+    11: "Sabritas Sal 36g.",
+    12: "Cheetos Flamin Hot 44g.",
+    13: "Doritos Nacho 48g.",
+    14: "Pop Karameladas 120g.",
+    15: "Hot Nuts Original 160g.",
+    16: "Bitz Cacahuate Enchilado 90g.",
+    17: "Bitz Almendras con Sal 32g.",
+    18: "Bitz Cacahuates Enchilados 95g.",
+    19: "Leo Mix Botanero 80g.",
+    20: "Maruchan Pollo con Vegetales 64g.",
+    21: "Botanera Chilito 125g.",
+    22: "Tajín Dulce 160g.",
+    23: "Salsa Búfalo Clásica 150g.",
+    24: "Del Primo Salsa Guacamole 300g.",
+    25: "Nestle La Lechera Original 335g.",
+    26: "Nestle Carnation Leche Evaporada 360g.",
+    27: "Chips Papatinas 90g.",
+    28: "Ruffles Queso 41g.",
+    29: "Maruchan Carne de Res 64g.",
+    30: "Nissin Camarón Picante 64g.",
+    31: "Nissin Carne de Res 64g.",
+    32: "Bitz Cacahuate Habanero 110g.",
+    33: "Semillas de Girasol 70g.",
+    34: "Cacahuates Sal Bokados 90g.",
+    35: "Cacahuates Japonés Leo 90g.",
+    36: "Semillas de Calabaza Bokados 30g."
+}
 
 def dataProcessing(infoData):
     pass
 
+def obtainProduct(imagen_recortada):
+    # TODO: AGREGAR FUNCIONALIDAD DE COMPARACION CON EL MODELO
+    # get a random number between 1 and 36
+    random_number = np.random.randint(1, 36)
+
+    return productMatrixCatalog[random_number]
+
+def getPlanogramScheme(coordinates):
+    # Ordenar las coordenadas por y
+    coordinates.sort()
+
 @servidorWeb.route("/classifyImage", methods=["POST"])
 def classify():
     index = 0
+    productMatrix = {}
+
     if "coordenadas" not in request.json:
         return "No image part in the form"
 
     rectangles = request.json["coordenadas"]
+
+    print("Rectangles: ", rectangles)
 
     # Recorre los rectangulos
     for rectangle in rectangles['coordenadas']:
@@ -41,11 +94,18 @@ def classify():
         # Recorta la imagen
         imagen_recortada = imagen.crop((x, y, x + width, y + height))
 
-        # TODO: AGREGAR FUNCIONALIDAD DE COMPARACION CON EL MODELO
-        # Guarda la imagen recortada
+        """ 
+        Guarda la imagen recortada
+
         name = "imagen_recortada " + str(index) + ".jpg"
         imagen_recortada.save("croppedImages/" + name)
         index += 1
+        """
+
+        # Obtiene el producto
+        product = obtainProduct(imagen_recortada)
+        
+
 
     return "Image uploaded successfully"
 
