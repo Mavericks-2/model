@@ -110,7 +110,7 @@ def getPlanogramProducts(planogram, image):
         # Agregar la fila a los productos
         products.append(rowProducts)
 
-    return planogram
+    return products
 
 
 @servidorWeb.route("/classifyImage", methods=["POST"])
