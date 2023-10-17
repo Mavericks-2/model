@@ -53,8 +53,10 @@ productMatrixCatalog = {
     36: "Semillas de Calabaza Bokados 30g."
 }
 
+
 def dataProcessing(infoData):
     pass
+
 
 def obtainProduct(imagen_recortada):
     # TODO: AGREGAR FUNCIONALIDAD DE COMPARACION CON EL MODELO
@@ -63,49 +65,71 @@ def obtainProduct(imagen_recortada):
 
     return productMatrixCatalog[random_number]
 
+
 def getPlanogramScheme(coordinates):
-    # Ordenar las coordenadas por y
-    coordinates.sort()
+    #  Ordenar las coordenadas por y
+    coordinates.sort(key=lambda x: x["y"])
+
+    # Definir diccionario
+    result = {}
+    for coordinate in coordinates:
+        if coordinate["y"] in result:
+            result[coordinate["y"]].append(coordinate)
+        else:
+            result[coordinate["y"]] = []
+            result[coordinate["y"]].append(coordinate)
+
+    # Por cada fila, ordenar por x
+    for row in result:
+        result[row].sort(key=lambda x: x["x"])
+
+    #  Generar el planograma final [[{}]]
+    result = list(result.values())
+
+    return result
+
+
+def getPlanogramProducts(planogram, image):
+    # Definir arreglo de productos
+    products = []
+    #  Obtener los productos de cada fila
+    for row in planogram:
+        rowProducts = []
+        for product in row:
+            #  Obtener las coordenadas
+            x = product["x"]
+            y = product["y"]
+            width = product["width"]
+            height = product["height"]
+            # Recorta la imagen
+            imagen_recortada = image.crop((x, y, x + width, y + height))
+            #  Obtener el producto
+            product = obtainProduct(imagen_recortada)
+            # Agregar el producto a la fila
+            rowProducts.append(product)
+        # Agregar la fila a los productos
+        products.append(rowProducts)
+        
+    return planogram
+
 
 @servidorWeb.route("/classifyImage", methods=["POST"])
 def classify():
-    index = 0
-    productMatrix = {}
-
     if "coordenadas" not in request.json:
         return "No image part in the form"
 
     rectangles = request.json["coordenadas"]
 
+    # Obtener la imagen actual
+    image = Image.open("imagenActual/imagenActual.jpg")  # Obtenerla de la bd
+
     print("Rectangles: ", rectangles)
 
-    # Recorre los rectangulos
-    for rectangle in rectangles['coordenadas']:
-        # Obtiene las coordenadas
-        x = rectangle["x"]
-        y = rectangle["y"]
-        width = rectangle["width"]
-        height = rectangle["height"]
+    #  Obtener el esquema del planograma
+    scheme = getPlanogramScheme(rectangles)
+    planogram = getPlanogramProducts(scheme, image)
 
-        # Abre la imagen sin saber el nombre
-        for filename in os.listdir("imagenActual"):
-            imagen = Image.open("imagenActual/" + filename)
-
-        # Recorta la imagen
-        imagen_recortada = imagen.crop((x, y, x + width, y + height))
-
-        """ 
-        Guarda la imagen recortada
-
-        name = "imagen_recortada " + str(index) + ".jpg"
-        imagen_recortada.save("croppedImages/" + name)
-        index += 1
-        """
-
-        # Obtiene el producto
-        product = obtainProduct(imagen_recortada)
-        
-
+    print(planogram)
 
     return "Image uploaded successfully"
 
@@ -132,7 +156,7 @@ def upload():
     # print("Width: ", width)
     # print("Height: ", height)
 
-    imagen.save("imagenActual/" + file.filename)
+    imagen.save("imagenActual/imagenActual.jpg")
 
     return "Image uploaded successfully"
 
