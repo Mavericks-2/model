@@ -109,7 +109,7 @@ def getPlanogramProducts(planogram, image):
             rowProducts.append(product)
         # Agregar la fila a los productos
         products.append(rowProducts)
-        
+
     return planogram
 
 
@@ -126,7 +126,7 @@ def classify():
     print("Rectangles: ", rectangles)
 
     #  Obtener el esquema del planograma
-    scheme = getPlanogramScheme(rectangles)
+    scheme = getPlanogramScheme(rectangles["coordenadas"])
     planogram = getPlanogramProducts(scheme, image)
 
     print(planogram)
