@@ -63,7 +63,7 @@ def obtainProduct(imagen_recortada):
     # get a random number between 1 and 36
     random_number = np.random.randint(1, 36)
 
-    return productMatrixCatalog[random_number]
+    return random_number
 
 
 def getPlanogramScheme(coordinates):
@@ -111,6 +111,41 @@ def getPlanogramProducts(planogram, image):
         products.append(rowProducts)
 
     return products
+
+@servidorWeb.route("/compareImages", methods=["POST"])
+def compare():
+    resultMatrix = []
+    row_index = 0
+    column_index = 0
+    
+    planogramMatrix = request.json["planogramMatrix"]
+    photoMatrix = request.json["photoMatrix"]
+
+    planogramMatrix = planogramMatrix["coordenadas"]
+    photoMatrix = photoMatrix["coordenadas"]
+
+    print("Planogram Matrix: ", planogramMatrix)
+    print("Photo Matrix: ", photoMatrix)
+
+    for row in planogramMatrix:
+        column_index = 0
+        for product in row:
+            is_correct = True
+            if product != photoMatrix[row_index][column_index]:
+                is_correct = False
+            resultMatrix.append({
+                "row": row_index,
+                "column": column_index,
+                "currentProduct": product,
+                "expectedProduct": photoMatrix[row_index][column_index],
+                "isCorrect": is_correct
+                })
+            column_index += 1
+        row_index += 1
+
+    print("Result Matrix: ", resultMatrix)
+
+    return jsonify({"resultMatrix": resultMatrix})
 
 
 @servidorWeb.route("/classifyImage", methods=["POST"])
