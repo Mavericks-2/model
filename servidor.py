@@ -117,9 +117,9 @@ def compare():
     resultMatrix = []
     row_index = 0
     column_index = 0
-    
-    planogramMatrix = request.json["planogramMatrix"]
-    photoMatrix = request.json["photoMatrix"]
+
+    planogramMatrix = request.json["data"]["planogram"]
+    photoMatrix = request.json["data"]["actualPlanogram"]
 
     planogramMatrix = planogramMatrix["coordenadas"]
     photoMatrix = photoMatrix["coordenadas"]
@@ -150,10 +150,11 @@ def compare():
 
 @servidorWeb.route("/classifyImage", methods=["POST"])
 def classify():
-    if "coordenadas" not in request.json:
+    print("Request: ", request.json["data"])
+    if "coordenadas" not in request.json["data"]:
         return "No image part in the form"
 
-    rectangles = request.json["coordenadas"]
+    rectangles = request.json["data"]["coordenadas"]
 
     # Obtener la imagen actual
     image = Image.open("imagenActual/imagenActual.jpg")  # Obtenerla de la bd
@@ -164,9 +165,7 @@ def classify():
     scheme = getPlanogramScheme(rectangles["coordenadas"])
     planogram = getPlanogramProducts(scheme, image)
 
-    print(planogram)
-
-    return "Image uploaded successfully"
+    return planogram
 
 
 @servidorWeb.route("/uploadImage", methods=["POST"])
@@ -217,4 +216,4 @@ def modelo():
 
 
 if __name__ == "__main__":
-    servidorWeb.run(debug=False, host="0.0.0.0", port="8081")
+    servidorWeb.run(debug=False, host="0.0.0.0", port="8083")
