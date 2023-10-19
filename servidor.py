@@ -1,3 +1,5 @@
+import base64
+import io
 from flask import Flask, request, jsonify
 from PIL import Image
 from flask_cors import CORS
@@ -170,29 +172,18 @@ def classify():
 
 @servidorWeb.route("/uploadImage", methods=["POST"])
 def upload():
-    if "imagen" not in request.files:
-        return "No image part in the form"
+    base64_data = request.json["imagen"]
+    
+    image_data = base64.b64decode(base64_data)
+    
+    imagen = Image.open(io.BytesIO(image_data))
 
-    file = request.files["imagen"]
 
-    if file.filename == "":
-        return "No selected image"
-
-    # You can process the image here, save it to a directory, or perform other actions.
-    # For example, you can save it to the 'uploads' directory:
-    # file.save('uploads/' + file.filename)
-
-    # Abre la imagen
-    imagen = Image.open(file)
-
-    # Obtiene el width y height de la imagen
     width, height = imagen.size
-    # print("Width: ", width)
-    # print("Height: ", height)
-
+    
     imagen.save("imagenActual/imagenActual.jpg")
 
-    return "Image uploaded successfully"
+    return {"message": "ok"}
 
 
 # Envío de datos a través de JSON
