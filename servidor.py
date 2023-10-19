@@ -152,7 +152,6 @@ def compare():
 
 @servidorWeb.route("/classifyImage", methods=["POST"])
 def classify():
-    print("Request: ", request.json["data"])
     if "coordenadas" not in request.json["data"]:
         return "No image part in the form"
 
@@ -161,11 +160,11 @@ def classify():
     # Obtener la imagen actual
     image = Image.open("imagenActual/imagenActual.jpg")  # Obtenerla de la bd
 
-    print("Rectangles: ", rectangles)
-
     #  Obtener el esquema del planograma
     scheme = getPlanogramScheme(rectangles["coordenadas"])
     planogram = getPlanogramProducts(scheme, image)
+
+    print(planogram)
 
     return planogram
 
