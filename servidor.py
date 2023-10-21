@@ -6,6 +6,7 @@ from flask_cors import CORS
 import numpy as np
 from joblib import load
 import os
+from modelController import getClassification
 
 # Cargar el modelo
 # dt = load("HousesRandomForest.joblib")
@@ -16,43 +17,55 @@ servidorWeb = Flask(__name__)
 # Enable CORS for all routes
 CORS(servidorWeb, resources={r"/*": {"origins": "*"}})
 
+# productMatrixCatalog = {
+#     1: "Takis Fuego 80g.",
+#     2: "Takis Original 80g.",
+#     3: "Runners 80g.",
+#     4: "Chips Jalapeño 60g.",
+#     5: "Chips Fuego 60g.",
+#     6: "Tostitos 57g.",
+#     7: "Cheetos Torciditos 44g.",
+#     8: "Fritos Limón y Sal 38g.",
+#     9: "Churrumais",
+#     10: "Rancheritos 40g.",
+#     11: "Sabritas Sal 36g.",
+#     12: "Cheetos Flamin Hot 44g.",
+#     13: "Doritos Nacho 48g.",
+#     14: "Pop Karameladas 120g.",
+#     15: "Hot Nuts Original 160g.",
+#     16: "Bitz Cacahuate Enchilado 90g.",
+#     17: "Bitz Almendras con Sal 32g.",
+#     18: "Bitz Cacahuates Enchilados 95g.",
+#     19: "Leo Mix Botanero 80g.",
+#     20: "Maruchan Pollo con Vegetales 64g.",
+#     21: "Botanera Chilito 125g.",
+#     22: "Tajín Dulce 160g.",
+#     23: "Salsa Búfalo Clásica 150g.",
+#     24: "Del Primo Salsa Guacamole 300g.",
+#     25: "Nestle La Lechera Original 335g.",
+#     26: "Nestle Carnation Leche Evaporada 360g.",
+#     27: "Chips Papatinas 90g.",
+#     28: "Ruffles Queso 41g.",
+#     29: "Maruchan Carne de Res 64g.",
+#     30: "Nissin Camarón Picante 64g.",
+#     31: "Nissin Carne de Res 64g.",
+#     32: "Bitz Cacahuate Habanero 110g.",
+#     33: "Semillas de Girasol 70g.",
+#     34: "Cacahuates Sal Bokados 90g.",
+#     35: "Cacahuates Japonés Leo 90g.",
+#     36: "Semillas de Calabaza Bokados 30g."
+# }
+
+# Catalogo para el modelo de 8 productos
 productMatrixCatalog = {
-    1: "Takis Fuego 80g.",
-    2: "Takis Original 80g.",
-    3: "Runners 80g.",
-    4: "Chips Jalapeño 60g.",
-    5: "Chips Fuego 60g.",
-    6: "Tostitos 57g.",
-    7: "Cheetos Torciditos 44g.",
-    8: "Fritos Limón y Sal 38g.",
-    9: "Churrumais",
-    10: "Rancheritos 40g.",
-    11: "Sabritas Sal 36g.",
-    12: "Cheetos Flamin Hot 44g.",
-    13: "Doritos Nacho 48g.",
-    14: "Pop Karameladas 120g.",
-    15: "Hot Nuts Original 160g.",
-    16: "Bitz Cacahuate Enchilado 90g.",
-    17: "Bitz Almendras con Sal 32g.",
-    18: "Bitz Cacahuates Enchilados 95g.",
-    19: "Leo Mix Botanero 80g.",
-    20: "Maruchan Pollo con Vegetales 64g.",
-    21: "Botanera Chilito 125g.",
-    22: "Tajín Dulce 160g.",
-    23: "Salsa Búfalo Clásica 150g.",
-    24: "Del Primo Salsa Guacamole 300g.",
-    25: "Nestle La Lechera Original 335g.",
-    26: "Nestle Carnation Leche Evaporada 360g.",
-    27: "Chips Papatinas 90g.",
-    28: "Ruffles Queso 41g.",
-    29: "Maruchan Carne de Res 64g.",
-    30: "Nissin Camarón Picante 64g.",
-    31: "Nissin Carne de Res 64g.",
-    32: "Bitz Cacahuate Habanero 110g.",
-    33: "Semillas de Girasol 70g.",
-    34: "Cacahuates Sal Bokados 90g.",
-    35: "Cacahuates Japonés Leo 90g.",
-    36: "Semillas de Calabaza Bokados 30g."
+    1: 'Cheetos Torciditos',
+    2: 'Chips Fuego',
+    3: 'Chips Jalapeño',
+    4: 'Hut Nuts',
+    5: 'Maruchan PolloConVegetales',
+    6: 'Nissin CamaronPicante',
+    7: 'Takis Fuego',
+    8: 'Tostitos'
 }
 
 
@@ -61,11 +74,11 @@ def dataProcessing(infoData):
 
 
 def obtainProduct(imagen_recortada):
-    # TODO: AGREGAR FUNCIONALIDAD DE COMPARACION CON EL MODELO
-    # get a random number between 1 and 36
-    random_number = np.random.randint(1, 36)
-
-    return random_number
+     # Hacer resize a la imagen 256x256
+    imagen_recortada = imagen_recortada.resize((256, 256))
+    # Obtener la clasificación
+    classification = getClassification(imagen_recortada)
+    return int(classification)
 
 
 def getPlanogramScheme(coordinates):
@@ -141,7 +154,7 @@ def compare():
                 "currentProduct": product,
                 "expectedProduct": photoMatrix[row_index][column_index],
                 "isCorrect": is_correct
-                })
+            })
             column_index += 1
         row_index += 1
 
@@ -164,22 +177,15 @@ def classify():
     scheme = getPlanogramScheme(rectangles["coordenadas"])
     planogram = getPlanogramProducts(scheme, image)
 
-    print(planogram)
-
+    print("Planogram: ", planogram)
     return planogram
 
 
 @servidorWeb.route("/uploadImage", methods=["POST"])
 def upload():
     base64_data = request.json["imagen"]
-    
     image_data = base64.b64decode(base64_data)
-    
     imagen = Image.open(io.BytesIO(image_data))
-
-
-    width, height = imagen.size
-    
     imagen.save("imagenActual/imagenActual.jpg")
 
     return {"message": "ok"}
