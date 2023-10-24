@@ -58,16 +58,31 @@ CORS(servidorWeb, resources={r"/*": {"origins": "*"}})
 
 # Catalogo para el modelo de 8 productos
 productMatrixCatalog = {
-    1: 'Cheetos Torciditos',
-    2: 'Chips Fuego',
-    3: 'Chips Jalapeño',
-    4: 'Hut Nuts',
-    5: 'Maruchan PolloConVegetales',
-    6: 'Nissin CamaronPicante',
-    7: 'Takis Fuego',
-    8: 'Tostitos'
+    0: 'Cheetos Torciditos',
+    1: 'Chips Fuego',
+    2: 'Chips Jalapeño',
+    3: 'Hut Nuts',
+    4: 'Maruchan PolloConVegetales',
+    5: 'Nissin CamaronPicante',
+    6: 'Takis Fuego',
+    7: 'Tostitos'
 }
 
+def scaleImage(image, width, height):
+    #  Obtener el tamaño de la imagen
+    image_width, image_height = image.size
+
+    #  Obtener el factor de escala
+    scale = min(width / image_width, height / image_height)
+
+    #  Obtener el nuevo tamaño
+    new_width = int(image_width * scale)
+    new_height = int(image_height * scale)
+
+    #  Redimensionar la imagen
+    image = image.resize((new_width, new_height))
+
+    return image
 
 def dataProcessing(infoData):
     pass
@@ -118,8 +133,13 @@ def getPlanogramProducts(planogram, image):
             height = product["height"]
             # Recorta la imagen
             imagen_recortada = image.crop((x, y, x + width, y + height))
+            # Guarda la imagen recortada en una carpeta
+            imagen_recortada.save("imagenActual/recortes/" +
+                                  str(x) + "_" + str(y) + ".jpg")
+
             #  Obtener el producto
             product = obtainProduct(imagen_recortada)
+
             # Agregar el producto a la fila
             rowProducts.append(product)
         # Agregar la fila a los productos
@@ -158,8 +178,6 @@ def compare():
             column_index += 1
         row_index += 1
 
-    print("Result Matrix: ", resultMatrix)
-
     return jsonify({"resultMatrix": resultMatrix})
 
 
@@ -177,7 +195,6 @@ def classify():
     scheme = getPlanogramScheme(rectangles["coordenadas"])
     planogram = getPlanogramProducts(scheme, image)
 
-    print("Planogram: ", planogram)
     return planogram
 
 
@@ -186,7 +203,23 @@ def upload():
     base64_data = request.json["imagen"]
     image_data = base64.b64decode(base64_data)
     imagen = Image.open(io.BytesIO(image_data))
+    # erase previous image if exists
+    if os.path.exists("imagenActual/imagenActual.jpg"):
+        os.remove("imagenActual/imagenActual.jpg")
+
+    # wait for the image to be deleted
+    while os.path.exists("imagenActual/imagenActual.jpg"):
+        pass
+
+    if request.json["scaleWidth"] > 0:
+        imagen = scaleImage(imagen, request.json["scaleWidth"], request.json["scaleHeight"])
+
+    # Saves images
     imagen.save("imagenActual/imagenActual.jpg")
+
+    # Wait for the image to be saved
+    while not os.path.exists("imagenActual/imagenActual.jpg"):
+        pass
 
     return {"message": "ok"}
 
