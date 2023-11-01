@@ -243,6 +243,12 @@ def modelo():
     # Retornar la predicción en formato JSON
     return jsonify({"prediccion": "prediccion"})
 
+@servidorWeb.route("/getImageSize", methods=["GET"])
+def getImageSize():
+    image = Image.open("imagenActual/imagenActual.jpg")
+    width, height = image.size
+    return jsonify({"width": width, "height": height})
+
 
 if __name__ == "__main__":
     servidorWeb.run(debug=False, host="0.0.0.0", port="8083")
