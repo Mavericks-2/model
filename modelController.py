@@ -17,10 +17,11 @@ transform = transforms.Compose([
     transforms.Resize((256, 256)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-                            0.229, 0.224, 0.225])
+        0.229, 0.224, 0.225])
 ])
 
-def getClassification(image) -> None:
+
+def getClassification(image):
     # Transformar la imagen
     image = transform(image)
     # Convertir la imagen transformada a un tensor
@@ -35,14 +36,56 @@ def getClassification(image) -> None:
     # Las predicciones están en ort_outs[0], que es un ndarray de NumPy
     predictions = ort_outs[0]
     predicted_class = np.argmax(predictions)
-    labels = ['Cheetos Torciditos',
-              'Chips Fuego',
-              'Chips Jalapeño',
-              'Hut Nuts',
-              'Maruchan PolloConVegetales',
-              'Nissin CamaronPicante',
-              'Takis Fuego',
-              'Tostitos']
-
-    predicted_label = labels[predicted_class]
+    
     return predicted_class
+
+
+def getProductMatrix(labels, labelsMatrix):
+    productMatrix = []
+    for r in labelsMatrix:
+        row = []
+        for label in r:
+            row.append(labels[label])
+        productMatrix.append(row)
+
+    return productMatrix
+
+if __name__ == "__main__":
+    labelsMatrix = [[24, 9, 29, 14, 33, 12, 14], [8, 19, 27, 15, 19, 26, 10], [19, 19, 19, 23, 14, 29, 29, 19, 21, 19, 12]]
+    labels = ['BitzAlmendrasConSal',
+              'BitzCacahuateEnchilado',
+              'BitzCacahuateHabanero',
+              'BitzCacahuatesEnchilados',
+              'BotaneraChilito',
+              'CacahuatesJaponésLeo',
+              'CacahuatesSalBokados',
+              'CheetosFlaminHot',
+              'CheetosTorciditos',
+              'ChipsFuego',
+              'ChipsJalapeño',
+              'ChipsPapatinas',
+              'Churrumais',
+              'DelPrimoSalsaGuacamole',
+              'DoritosNachos',
+              'FritosLimonYSal',
+              'HutNuts',
+              'LeoMixBotanero',
+              'MaruchanCarneDeRes',
+              'MaruchanPolloConVegetales',
+              'NestléCarnationLecheEvaporada',
+              'NestléLaLecheraOriginal',
+              'NissinCamaronPicante',
+              'NissinCarneDeRes',
+              'PopKarameladas',
+              'Rancheritos',
+              'RufflesQueso',
+              'Runners',
+              'SabritasSal',
+              'SalsaBúfaloClásica',
+              'SemillasDeCalabazaBokados',
+              'SemillasDeGirasol',
+              'TajínDulce',
+              'TakisFuego',
+              'TakisOriginal',
+              'Tostitos']
+    print(getProductMatrix(labels, labelsMatrix))

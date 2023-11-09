@@ -17,57 +17,6 @@ servidorWeb = Flask(__name__)
 # Enable CORS for all routes
 CORS(servidorWeb, resources={r"/*": {"origins": "*"}})
 
-# productMatrixCatalog = {
-#     1: "Takis Fuego 80g.",
-#     2: "Takis Original 80g.",
-#     3: "Runners 80g.",
-#     4: "Chips Jalapeño 60g.",
-#     5: "Chips Fuego 60g.",
-#     6: "Tostitos 57g.",
-#     7: "Cheetos Torciditos 44g.",
-#     8: "Fritos Limón y Sal 38g.",
-#     9: "Churrumais",
-#     10: "Rancheritos 40g.",
-#     11: "Sabritas Sal 36g.",
-#     12: "Cheetos Flamin Hot 44g.",
-#     13: "Doritos Nacho 48g.",
-#     14: "Pop Karameladas 120g.",
-#     15: "Hot Nuts Original 160g.",
-#     16: "Bitz Cacahuate Enchilado 90g.",
-#     17: "Bitz Almendras con Sal 32g.",
-#     18: "Bitz Cacahuates Enchilados 95g.",
-#     19: "Leo Mix Botanero 80g.",
-#     20: "Maruchan Pollo con Vegetales 64g.",
-#     21: "Botanera Chilito 125g.",
-#     22: "Tajín Dulce 160g.",
-#     23: "Salsa Búfalo Clásica 150g.",
-#     24: "Del Primo Salsa Guacamole 300g.",
-#     25: "Nestle La Lechera Original 335g.",
-#     26: "Nestle Carnation Leche Evaporada 360g.",
-#     27: "Chips Papatinas 90g.",
-#     28: "Ruffles Queso 41g.",
-#     29: "Maruchan Carne de Res 64g.",
-#     30: "Nissin Camarón Picante 64g.",
-#     31: "Nissin Carne de Res 64g.",
-#     32: "Bitz Cacahuate Habanero 110g.",
-#     33: "Semillas de Girasol 70g.",
-#     34: "Cacahuates Sal Bokados 90g.",
-#     35: "Cacahuates Japonés Leo 90g.",
-#     36: "Semillas de Calabaza Bokados 30g."
-# }
-
-# Catalogo para el modelo de 8 productos
-productMatrixCatalog = {
-    0: 'Cheetos Torciditos',
-    1: 'Chips Fuego',
-    2: 'Chips Jalapeño',
-    3: 'Hut Nuts',
-    4: 'Maruchan PolloConVegetales',
-    5: 'Nissin CamaronPicante',
-    6: 'Takis Fuego',
-    7: 'Tostitos'
-}
-
 def scaleImage(image, width, height):
     #  Obtener el tamaño de la imagen
     image_width, image_height = image.size
@@ -118,10 +67,18 @@ def getPlanogramScheme(coordinates):
 
     return result
 
+def getLastAdded():
+    #  Obtener el último archivo agregado
+    lastAdded = 0
+    for file in os.listdir("imagenActual/recortes/"):
+        if file.endswith(".jpg"):
+            lastAdded = int(file.split(".")[0])
+    return lastAdded
 
 def getPlanogramProducts(planogram, image):
     # Definir arreglo de productos
     products = []
+    lastAdded = getLastAdded()
     #  Obtener los productos de cada fila
     for row in planogram:
         rowProducts = []
@@ -133,9 +90,12 @@ def getPlanogramProducts(planogram, image):
             height = product["height"]
             # Recorta la imagen
             imagen_recortada = image.crop((x, y, x + width, y + height))
+            lastAdded += 1
+            # Validate that the name is not already in the folder
+            while os.path.exists("imagenActual/recortes/"+str(lastAdded) + ".jpg"):
+                lastAdded += 1
             # Guarda la imagen recortada en una carpeta
-            imagen_recortada.save("imagenActual/recortes/" +
-                                  str(x) + "_" + str(y) + ".jpg")
+            imagen_recortada.save("imagenActual/recortes/"+str(lastAdded)+ ".jpg")
 
             #  Obtener el producto
             product = obtainProduct(imagen_recortada)
