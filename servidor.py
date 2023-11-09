@@ -163,6 +163,10 @@ def upload():
     base64_data = request.json["imagen"]
     image_data = base64.b64decode(base64_data)
     imagen = Image.open(io.BytesIO(image_data))
+
+     # flip image
+    imagen = imagen.transpose(Image.ROTATE_270)
+
     # erase previous image if exists
     if os.path.exists("imagenActual/imagenActual.jpg"):
         os.remove("imagenActual/imagenActual.jpg")
