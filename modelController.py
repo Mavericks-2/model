@@ -36,7 +36,7 @@ def getClassification(image):
     # Las predicciones están en ort_outs[0], que es un ndarray de NumPy
     predictions = ort_outs[0]
     predicted_class = np.argmax(predictions)
-    
+
     return predicted_class
 
 
@@ -50,8 +50,23 @@ def getProductMatrix(labels, labelsMatrix):
 
     return productMatrix
 
+def compareMatrix(actual, real):
+    diferences = []
+    for i in range(len(actual)):
+        for j in range(len(actual[i])):
+            if actual[i][j] != real[i][j]:
+                diferences.append([(i, j), (actual[i][j], real[i][j])])
+    return diferences
+
+def getLenMatrix(matrix):
+    n = 0
+    for row in matrix:
+        n += len(row)
+    return n
+
+
 if __name__ == "__main__":
-    labelsMatrix = [[24, 9, 29, 14, 33, 12, 14], [8, 19, 27, 15, 19, 26, 10], [19, 19, 19, 23, 14, 29, 29, 19, 21, 19, 12]]
+    labelsMatrix =[[29,29,29,29,19,29,14,14],[7,7,9,24,7,19,8,23],[6,26,29,29,29,29,14,29,29]]
     labels = ['BitzAlmendrasConSal',
               'BitzCacahuateEnchilado',
               'BitzCacahuateHabanero',
@@ -88,4 +103,19 @@ if __name__ == "__main__":
               'TakisFuego',
               'TakisOriginal',
               'Tostitos']
-    print(getProductMatrix(labels, labelsMatrix))
+
+    realMatrix = [['ChipsJalapeño', 'BitzAlmendrasConSal', 'MaruchanCarneDeRes',
+                   'TakisOriginal', 'HutNuts', 'TakisFuego', 'Runners', 'Churrumais'], 
+                   [
+                    'CheetosFlaminHot', 'NestléCarnationLecheEvaporada', 'ChipsFuego', 'PopKarameladas',
+                    'SabritasSal', 'NissinCamaronPicante', 'MaruchanPolloConVegetales', 'NissinCarneDeRes',
+                   ],
+                   [
+                    'FritosLimonYSal', 'RufflesQueso', 'NestléLaLecheraOriginal', 'TajínDulce', 'SalsaBúfaloClásica',
+                    'Rancheritos', 'DoritosNachos', 'BitzCacahuateHabanero', 'BitzCacahuateHabanero', 'BitzCacahuatesEnchilados'
+                   ]]
+    actualMatrix = getProductMatrix(labels, labelsMatrix)
+    print(compareMatrix(actualMatrix, realMatrix))
+
+    nProducts = getLenMatrix(labelsMatrix)
+    print("Porcentaje de acierto: ", (nProducts - len(compareMatrix(actualMatrix, realMatrix))) / nProducts * 100, "% \n")
