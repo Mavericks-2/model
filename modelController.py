@@ -66,7 +66,7 @@ def getLenMatrix(matrix):
 
 
 if __name__ == "__main__":
-    labelsMatrix =[[29,29,29,29,19,29,14,14],[7,7,9,24,7,19,8,23],[6,26,29,29,29,29,14,29,29]]
+    labelsMatrix =[[24,9,34,25,7,12,14],[8,7,7,7,7,26,10],[7,7,19,7,7,29,29,7,21,29,7]]
     labels = ['BitzAlmendrasConSal',
               'BitzCacahuateEnchilado',
               'BitzCacahuateHabanero',
@@ -104,7 +104,8 @@ if __name__ == "__main__":
               'TakisOriginal',
               'Tostitos']
 
-    realMatrix = [['ChipsJalapeño', 'BitzAlmendrasConSal', 'MaruchanCarneDeRes',
+    realMatrix_planogramEx_1_2_3 = [
+                    ['ChipsJalapeño', 'BitzAlmendrasConSal', 'MaruchanCarneDeRes',
                    'TakisOriginal', 'HutNuts', 'TakisFuego', 'Runners', 'Churrumais'], 
                    [
                     'CheetosFlaminHot', 'NestléCarnationLecheEvaporada', 'ChipsFuego', 'PopKarameladas',
@@ -112,10 +113,25 @@ if __name__ == "__main__":
                    ],
                    [
                     'FritosLimonYSal', 'RufflesQueso', 'NestléLaLecheraOriginal', 'TajínDulce', 'SalsaBúfaloClásica',
-                    'Rancheritos', 'DoritosNachos', 'BitzCacahuateHabanero', 'BitzCacahuateHabanero', 'BitzCacahuatesEnchilados'
+                    'Rancheritos', 'DoritosNachos', 'BitzCacahuateHabanero', 'BitzCacahuatesEnchilados'
                    ]]
+    realMatrix_planogramEx_4_5_6_7 = [['PopKarameladas', 'ChipsFuego', 'TakisOriginal', 'Rancheritos', 'TakisFuego', 'Churrumais', 'DoritosNachos'], 
+                                     ['CheetosFlaminHot', 'RufflesQueso', 'FritosLimonYSal', 'NestléCarnationLecheEvaporada', 'HutNuts', 'SabritasSal', 'MaruchanPolloConVegetales', 'NissinCarneDeRes'], 
+                                     ['BitzCacahuatesEnchilados', 'BitzCacahuateHabanero', 'NestléLaLecheraOriginal', 'TajínDulce', 'SalsaBúfaloClásica']]
+
+    realMatrix_planogramEx_9 = [['PopKarameladas', 'ChipsFuego', 'TakisOriginal', 'Rancheritos', 'TakisFuego', 'Churrumais', 'DoritosNachos'],
+                                ['HutNuts', 'CheetosFlaminHot', 'Runners', 'FritosLimonYSal', 'NestléCarnationLecheEvaporada', 'MaruchanPolloConVegetales', 'NissinCamaronPicante', 'NissinCarneDeRes'],
+                                ['MaruchanCarneDeRes', 'ChipsJalapeño', 'SabritasSal', 'RufflesQueso', 'BitzAlmendrasConSal', 'SalsaBúfaloClásica', 'TajínDulce', 'NestléLaLecheraOriginal', 'BitzCacahuatesEnchilados', 'BitzCacahuateHabanero']]
+    
+    realMatrix_planogramEx_10__20 = [['PopKarameladas', 'ChipsFuego', 'TakisOriginal', 'Rancheritos', 'TakisFuego', 'Churrumais', 'DoritosNachos'],
+                                     ['HutNuts', 'CheetosFlaminHot', 'Runners', 'FritosLimonYSal', 'SabritasSal', 'RufflesQueso', 'ChipsJalapeño'],
+                                     ['MaruchanPolloConVegetales', 'MaruchanCarneDeRes', 'NissinCamaronPicante', 'NissinCarneDeRes', 'NestléCarnationLecheEvaporada', 'BitzAlmendrasConSal', 'SalsaBúfaloClásica', 'TajínDulce', 'NestléLaLecheraOriginal', 'BitzCacahuatesEnchilados', 'BitzCacahuateHabanero'],
+                                     ]
+
     actualMatrix = getProductMatrix(labels, labelsMatrix)
-    print(compareMatrix(actualMatrix, realMatrix))
+    matrizDiferencia = compareMatrix(actualMatrix, realMatrix_planogramEx_10__20)
+    print(matrizDiferencia)
 
     nProducts = getLenMatrix(labelsMatrix)
-    print("Porcentaje de acierto: ", (nProducts - len(compareMatrix(actualMatrix, realMatrix))) / nProducts * 100, "% \n")
+    percentage = (nProducts - len(matrizDiferencia)) / nProducts * 100
+    print("Porcentaje de acierto: ", percentage, "% \n")
