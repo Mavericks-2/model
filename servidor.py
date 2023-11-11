@@ -175,6 +175,7 @@ def upload():
         pass
 
     if request.json["scaleWidth"] > 0:
+        imagen = imagen.transpose(Image.ROTATE_270)
         imagen = scaleImage(imagen, request.json["scaleWidth"], request.json["scaleHeight"])
     else: 
         print("The image is not scaled")
