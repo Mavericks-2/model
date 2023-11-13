@@ -107,6 +107,17 @@ def getPlanogramProducts(planogram, image):
 
     return products
 
+
+def scaleRectangles(rectangles, realSize, actualSize):
+    # Ajustar los rectangulos con el tamaño de la imagen real 
+    for rectangle in rectangles:
+        rectangle["x"] = int(rectangle["x"] * realSize["width"] / actualSize["width"])
+        rectangle["y"] = int(rectangle["y"] * realSize["height"] / actualSize["height"])
+        rectangle["width"] = int(rectangle["width"] * realSize["width"] / actualSize["width"])
+        rectangle["height"] = int(rectangle["height"] * realSize["height"] / actualSize["height"])
+
+    return rectangles
+
 @servidorWeb.route("/compareImages", methods=["POST"])
 def compare():
     resultMatrix = []
@@ -146,13 +157,24 @@ def classify():
     if "coordenadas" not in request.json["data"]:
         return "No image part in the form"
 
-    rectangles = request.json["data"]["coordenadas"]
+    rectangles = request.json["data"]["coordenadas"]["coordenadas"]
 
     # Obtener la imagen actual
     image = Image.open("imagenActual/imagenActual.jpg")
 
+    # Obtener el tamaño de la imagen
+    realSize = {
+        "width": image.size[0],
+        "height": image.size[1]
+    }
+
+    if "actualSize" in request.json["data"]:
+        actualSize = request.json["data"]["actualSize"]
+        # Ajustar los rectangulos con el tamaño de la imagen
+        rectangles = scaleRectangles(rectangles, realSize, actualSize) 
+
     #  Obtener el esquema del planograma
-    scheme = getPlanogramScheme(rectangles["coordenadas"])
+    scheme = getPlanogramScheme(rectangles)
     planogram = getPlanogramProducts(scheme, image)
 
     return planogram
@@ -174,11 +196,7 @@ def upload():
     while os.path.exists("imagenActual/imagenActual.jpg"):
         pass
 
-    if request.json["scaleWidth"] > 0:
-        imagen = imagen.transpose(Image.ROTATE_270)
-        imagen = scaleImage(imagen, request.json["scaleWidth"], request.json["scaleHeight"])
-    else: 
-        print("The image is not scaled")
+    if request.json["transpose"]: 
         imagen = imagen.transpose(Image.ROTATE_270)
 
     # Saves images
