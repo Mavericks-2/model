@@ -11,6 +11,22 @@ from modelController import getClassification
 # Cargar el modelo
 # dt = load("HousesRandomForest.joblib")
 
+labels = [
+  "CheetosTorciditos",
+  "ChipsJalapeño",
+  "Churrumais",
+  "DoritosNachos",
+  "FritosLimonYSal",
+  "HutNuts",
+  "PopKarameladas",
+  "Rancheritos",
+  "RufflesQueso",
+  "Runners",
+  "TakisFuego",
+  "TakisOriginal",
+  "Tostitos",
+]
+
 # Generar el servidor (Back End)
 servidorWeb = Flask(__name__)
 
@@ -35,7 +51,6 @@ def scaleImage(image, width, height):
 
 def dataProcessing(infoData):
     pass
-
 
 def obtainProduct(imagen_recortada):
      # Hacer resize a la imagen 256x256
@@ -67,18 +82,22 @@ def getPlanogramScheme(coordinates):
 
     return result
 
-def getLastAdded():
+def getLastAdded(folderName="imagenActual/recortes/"):
     #  Obtener el último archivo agregado
     lastAdded = 0
-    for file in os.listdir("imagenActual/recortes/"):
+    # Evaluar si existe el directorio
+    if not os.path.exists(folderName):
+        os.makedirs(folderName)
+
+    for file in os.listdir(folderName):
         if file.endswith(".jpg"):
             lastAdded = int(file.split(".")[0])
+
     return lastAdded
 
 def getPlanogramProducts(planogram, image):
     # Definir arreglo de productos
     products = []
-    lastAdded = getLastAdded()
     #  Obtener los productos de cada fila
     for row in planogram:
         rowProducts = []
@@ -90,15 +109,12 @@ def getPlanogramProducts(planogram, image):
             height = product["height"]
             # Recorta la imagen
             imagen_recortada = image.crop((x, y, x + width, y + height))
-            lastAdded += 1
-            # Validate that the name is not already in the folder
-            while os.path.exists("imagenActual/recortes/"+str(lastAdded) + ".jpg"):
-                lastAdded += 1
-            # Guarda la imagen recortada en una carpeta
-            imagen_recortada.save("imagenActual/recortes/"+str(lastAdded)+ ".jpg")
-
             #  Obtener el producto
             product = obtainProduct(imagen_recortada)
+            folderName = "imagenActual/recortes/"+str(labels[product])+"/"
+            lastAdded = getLastAdded(folderName) + 1
+            # Guarda la imagen recortada en una carpeta
+            imagen_recortada.save(folderName+str(lastAdded)+ ".jpg")
 
             # Agregar el producto a la fila
             rowProducts.append(product)
@@ -106,7 +122,6 @@ def getPlanogramProducts(planogram, image):
         products.append(rowProducts)
 
     return products
-
 
 def scaleRectangles(rectangles, realSize, actualSize):
     # Ajustar los rectangulos con el tamaño de la imagen real 
