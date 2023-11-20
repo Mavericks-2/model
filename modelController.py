@@ -1,3 +1,9 @@
+"""
+@authors: Pablo González, José Ángel García, Erika Marlene
+@description: Controlador del modelo de clasificación el cual
+interactúa con el servidor para la clasificación de los productos.
+"""
+
 import onnx
 import onnxruntime
 import numpy as np
@@ -22,6 +28,11 @@ transform = transforms.Compose([
 
 
 def getClassification(image):
+    """
+    Función que clasifica una imagen de un producto
+    :param image: Imagen del producto
+    :return: Clasificación del producto
+    """
     # Transformar la imagen
     image = transform(image)
     # Convertir la imagen transformada a un tensor
@@ -41,6 +52,12 @@ def getClassification(image):
 
 
 def getProductMatrix(labels, labelsMatrix):
+    """
+    Función que obtiene la matriz de productos
+    :param labels: Etiquetas de los productos
+    :param labelsMatrix: Matriz de etiquetas
+    :return: Matriz de productos
+    """
     productMatrix = []
     for r in labelsMatrix:
         row = []
@@ -51,6 +68,12 @@ def getProductMatrix(labels, labelsMatrix):
     return productMatrix
 
 def compareMatrix(actual, real):
+    """
+    Función que compara dos matrices
+    :param actual: Matriz actual
+    :param real: Matriz real
+    :return: Diferencias entre las matrices
+    """
     diferences = []
     for i in range(len(actual)):
         for j in range(len(actual[i])):
@@ -59,6 +82,11 @@ def compareMatrix(actual, real):
     return diferences
 
 def getLenMatrix(matrix):
+    """
+    Función que obtiene el número de elementos de una matriz
+    :param matrix: Matriz
+    :return: Número de elementos de la matriz
+    """
     n = 0
     for row in matrix:
         n += len(row)
