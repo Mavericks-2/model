@@ -12,7 +12,6 @@ from flask import Flask, request, jsonify
 from PIL import Image
 from flask_cors import CORS
 import numpy as np
-from joblib import load
 import os
 from modelController import getClassification
 
