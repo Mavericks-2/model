@@ -7,9 +7,7 @@ interactúa con el servidor para la clasificación de los productos.
 import onnx
 import onnxruntime
 import numpy as np
-import torch
 from torchvision import transforms
-from PIL import Image
 
 # Lectura del modelo
 onnx_model_path = "modelo.onnx"
